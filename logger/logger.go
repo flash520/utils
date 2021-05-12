@@ -26,8 +26,8 @@ const (
 const (
 	info  = "[INFO]"
 	warn  = "[WARN]"
-	err   = "[ERROR]"
-	fatal = "[FATAL]"
+	err   = "[ERRO]"
+	fatal = "[FATA]"
 )
 
 const (
