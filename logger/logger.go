@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	LEVEL_DEBUG = iota
-	LEVEL_INFO
-	LEVEL_WARNING
-	LEVEL_ERROR
-	LEVEL_FATAL
+	LevelDebug = iota
+	LevelInfo
+	LevelWarning
+	LevelError
+	LevelFatal
 )
 
 const (
@@ -86,23 +86,23 @@ func CreateLogger() *Logger {
 }
 
 func (l *Logger) Info(msg ...interface{}) {
-	l.Level = LEVEL_INFO
+	l.Level = LevelInfo
 	l.Tag = info
 	l.prepend(msg)
 }
 func (l *Logger) Warn(msg ...interface{}) {
-	l.Level = LEVEL_WARNING
+	l.Level = LevelWarning
 	l.Tag = warn
 	l.prepend(msg)
 }
 func (l *Logger) Err(msg ...interface{}) {
-	l.Level = LEVEL_ERROR
+	l.Level = LevelError
 	l.Tag = err
 	l.prepend(msg)
 }
 
 func (l *Logger) Fatal(msg ...interface{}) {
-	l.Level = LEVEL_FATAL
+	l.Level = LevelFatal
 	l.Tag = fatal
 	l.prepend(msg)
 	panic(msg)
@@ -128,11 +128,11 @@ func (l *Logger) prepend(v []interface{}) {
 	}()
 
 	switch l.Level {
-	case LEVEL_INFO:
+	case LevelInfo:
 		l.ColorCode = greenBold
-	case LEVEL_WARNING:
+	case LevelWarning:
 		l.ColorCode = yellowBold
-	case LEVEL_ERROR:
+	case LevelError:
 		l.ColorCode = redBold
 	}
 
