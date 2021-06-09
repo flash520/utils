@@ -32,7 +32,7 @@ func CreateElastic(addr, username, password string) *Elastic {
 			elastic.SetSniff(false),
 			elastic.SetBasicAuth(username, password),
 			elastic.SetHttpClient(HttpClient),
-			elastic.SetErrorLog(log.New(os.Stderr, "[ELASTIC] - ERR - ", log.LstdFlags)),
+			elastic.SetErrorLog(log.New(os.Stderr, "[ELASTIC] - ERRO - ", log.LstdFlags)),
 			elastic.SetInfoLog(log.New(os.Stdout, "[ELASTIC] - INFO - ", log.LstdFlags)),
 		)
 		if err != nil {
