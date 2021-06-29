@@ -10,11 +10,12 @@ package redis_factory
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
