@@ -3,21 +3,10 @@
 #### 介绍
 go 常用工具包
 
-#### 软件架构
-软件架构说明
-
-
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  utils包中各个组件相互独立，没有依赖
+2.  使用时直接引用对应的包及可，如 import "gitee.com/flash520/utils/response"
 
 #### 参与贡献
 
