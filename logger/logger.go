@@ -10,9 +10,10 @@ package logger
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"runtime"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (

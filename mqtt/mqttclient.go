@@ -9,11 +9,12 @@
 package mqtt
 
 import (
-	"github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
 	"sync"
 	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 var mqttClient mqtt.Client

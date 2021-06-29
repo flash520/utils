@@ -9,11 +9,12 @@
 package elastic
 
 import (
-	"gitee.com/flash520/utils/httpclient"
-	"github.com/olivere/elastic/v7"
 	"log"
 	"os"
 	"sync"
+
+	"gitee.com/flash520/utils/httpclient"
+	"github.com/olivere/elastic/v7"
 )
 
 var (
