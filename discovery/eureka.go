@@ -20,11 +20,13 @@ type Eureka struct {
 	eurekaClient *eureka.Client
 }
 
+var client *eureka.Client
+
 func CreateEureka(username, password, node, app string, port int) *Eureka {
-	e := Eureka{}
+	//e := Eureka{}
 	var once sync.Once
 	once.Do(func() {
-		e.eurekaClient = eureka.NewClient(&eureka.Config{
+		client = eureka.NewClient(&eureka.Config{
 			DefaultZone:           "http://" + username + ":" + password + "@" + node,
 			App:                   app,
 			Port:                  port,
@@ -40,22 +42,22 @@ func CreateEureka(username, password, node, app string, port int) *Eureka {
 			},
 		})
 	})
-	go e.eurekaClient.Start()
+	go client.Start()
 	return &Eureka{}
 }
 
-func (e *Eureka) GetInstance(app string) (string, error) {
-	apps := e.eurekaClient.Applications
-	var instance string
+func (e *Eureka) GetInstance(serviceName string) (instance string, err error) {
+	apps := client.Applications
 	for _, v := range apps.Applications {
-		if v.Name == strings.ToUpper(app) {
+		if v.Name == strings.ToUpper(serviceName) {
 			for i := 0; i < len(v.Instances); i++ {
 				instance = v.Instances[i].HomePageURL
+				return instance, nil
 			}
 			break
 		}
-		return "", errors.New(strings.ToUpper(instance + " " + "找不到该服务"))
 	}
+	err = errors.New(strings.ToUpper(instance + " " + "找不到该服务"))
 
 	return instance, err
 }

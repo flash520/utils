@@ -30,7 +30,7 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 		os.Exit(-1)
 	}
 
-	var r Registry
+	r := &Registry{}
 
 	switch discoveryType {
 	case "eureka":
@@ -52,7 +52,7 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 		os.Exit(-1)
 	}
 
-	return &r
+	return r
 }
 
 func (r *Registry) GetInstance(app string) string {
