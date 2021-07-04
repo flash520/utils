@@ -17,16 +17,14 @@ import (
 )
 
 type Eureka struct {
-	eurekaClient *eureka.Client
 }
 
-var client *eureka.Client
+var eurekaClient *eureka.Client
 
 func CreateEureka(username, password, node, app string, port int) *Eureka {
-	//e := Eureka{}
 	var once sync.Once
 	once.Do(func() {
-		client = eureka.NewClient(&eureka.Config{
+		eurekaClient = eureka.NewClient(&eureka.Config{
 			DefaultZone:           "http://" + username + ":" + password + "@" + node,
 			App:                   app,
 			Port:                  port,
@@ -42,12 +40,12 @@ func CreateEureka(username, password, node, app string, port int) *Eureka {
 			},
 		})
 	})
-	go client.Start()
+	go eurekaClient.Start()
 	return &Eureka{}
 }
 
 func (e *Eureka) GetInstance(serviceName string) (instance string, err error) {
-	apps := client.Applications
+	apps := eurekaClient.Applications
 	for _, v := range apps.Applications {
 		if v.Name == strings.ToUpper(serviceName) {
 			for i := 0; i < len(v.Instances); i++ {
