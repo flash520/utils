@@ -16,11 +16,10 @@ import (
 )
 
 func main() {
-	register := discovery.InitDiscovery("eureka", "upgrade", "admin", "admin", "localhost:7000/eureka/", 80)
+	_ = discovery.InitDiscovery("eureka", "upgrade", "admin", "admin", "localhost:7000/eureka/", 80)
 
 	for {
 		time.Sleep(time.Second * 2)
-		log.Info("register对象: ", register.DiscoveryType)
-		log.Infof("服务地址: %v\n", register.GetInstance("upgrade"))
+		log.Infof("服务地址: %v\n", discovery.GetInstance("upgrade"))
 	}
 }

@@ -10,9 +10,12 @@ package discovery
 
 import (
 	"os"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
+
+var sMap sync.Map
 
 type Discovery interface {
 	// GetInstance 从服务发现获取应用地址
@@ -42,8 +45,11 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 			log.Errorf("eureka 注册中心初始化失败, 配置参数数量不足")
 			os.Exit(-1)
 		}
+
 		r.DiscoveryType = CreateEureka(config[0].(string), config[1].(string), config[2].(string),
 			app, config[3].(int))
+
+		sMap.Store("name", r)
 	case "nacos":
 		if len(config) != 5 {
 			log.Errorf("nacos 注册中心初始化失败, 配置参数数量不足")
@@ -51,6 +57,8 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 		}
 		r.DiscoveryType = CreateNacos(config[0].(string), config[1].(string),
 			config[2].(string), app, config[3].(uint64), config[4].(uint64))
+
+		sMap.Store("name", r)
 	default:
 		log.Errorf("注册中心类型错误")
 		os.Exit(-1)
@@ -59,8 +67,14 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 	return r
 }
 
-func (r *Registry) GetInstance(app string) string {
-	result, err := r.DiscoveryType.GetInstance(app)
+func GetInstance(app string) string {
+	name, isOK := sMap.Load("name")
+	if !isOK {
+		os.Exit(-1)
+	}
+
+	registry := name.(*Registry)
+	result, err := registry.DiscoveryType.GetInstance(app)
 	if err != nil {
 		log.Errorf(err.Error())
 	}
