@@ -27,7 +27,7 @@ func DeRegisterServiceInstance(param vo.DeregisterInstanceParam) {
 	log.Infof("DeRegisterServiceInstance,param:%+v,result:%+v \n\n", param, success)
 }
 
-func (n Nacos) GetInstance(serviceName string) (string, error) {
+func (n *Nacos) GetInstance(serviceName string) (string, error) {
 	params := vo.SelectOneHealthInstanceParam{
 		Clusters:    nil,
 		ServiceName: serviceName,

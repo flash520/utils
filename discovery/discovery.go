@@ -31,7 +31,7 @@ type Registry struct {
 // discoveryType 为 eureka 时，config 参数共 4 个，依次为:"用户名", "密码", "eureka地址:7000/eureka/", 应用端口
 //
 // discoveryType 为 nacos时，config 参数共 5个，依次为:nacos地址, contextPath, nameSpaceID, nacosPort, appPort
-func InitDiscovery(discoveryType string, app string, config ...interface{}) *Registry {
+func InitDiscovery(discoveryType string, app string, config ...interface{}) {
 	if len(config) < 1 {
 		log.Errorf("注册中心参数不足")
 		os.Exit(-1)
@@ -63,8 +63,6 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 		log.Errorf("注册中心类型错误")
 		os.Exit(-1)
 	}
-
-	return r
 }
 
 func GetInstance(app string) string {
