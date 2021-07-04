@@ -11,6 +11,7 @@ require (
 	github.com/olivere/elastic/v7 v7.0.24
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0
+	github.com/xuanbo/eureka-client v0.0.3
 	gorm.io/driver/mysql v1.0.6
 	gorm.io/gorm v1.21.9
 )
