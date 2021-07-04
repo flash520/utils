@@ -39,7 +39,7 @@ func InitDiscovery(discoveryType string, app string, config ...interface{}) *Reg
 			os.Exit(-1)
 		}
 		r.DiscoveryType = CreateEureka(config[0].(string), config[1].(string), config[2].(string),
-			app, config[4].(int))
+			app, config[3].(int))
 	case "nacos":
 		if len(config) != 5 {
 			log.Errorf("nacos 注册中心初始化失败, 配置参数数量不足")
