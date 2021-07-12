@@ -21,14 +21,14 @@ type consumer struct {
 	exchangeName                string
 	queueName                   string
 	durable                     bool
-	occurError                  error // 记录初始化过程中的错误
-	connErr                     chan *amqp.Error
-	routeKey                    string                    //  断线重连，结构体内部使用
-	callbackForReceived         func(receivedData string) //   断线重连，结构体内部使用
-	offLineReconnectIntervalSec time.Duration
-	retryTimes                  int
-	callbackOffLine             func(err *amqp.Error) //   断线重连，结构体内部使用
-	addr                        string
+	occurError                  error                     // 记录初始化过程中的错误
+	connErr                     chan *amqp.Error          // 错误通道
+	routeKey                    string                    // 断线重连，结构体内部使用
+	callbackForReceived         func(receivedData string) // 断线重连，结构体内部使用
+	offLineReconnectIntervalSec time.Duration             // 离线重连间隔时间，单位为秒
+	retryTimes                  int                       // 重试时间
+	callbackOffLine             func(err *amqp.Error)     // 断线重连，结构体内部使用
+	addr                        string                    // 服务器地址
 }
 
 func CreateConsumer(addr, exchangeType, exchangeName, queueName string, durable bool, reconnectInterval, retryTimes int) (*consumer, error) {
@@ -44,11 +44,15 @@ func CreateConsumer(addr, exchangeType, exchangeName, queueName string, durable 
 		exchangeName:                exchangeName,
 		queueName:                   queueName,
 		durable:                     durable,
-		connErr:                     conn.NotifyClose(make(chan *amqp.Error, 1)),
+		connErr:                     conn.NotifyClose(make(chan *amqp.Error)),
 		offLineReconnectIntervalSec: time.Duration(reconnectInterval),
 		retryTimes:                  retryTimes,
 		addr:                        addr,
 	}
+
+	go Consumer.OnConnectionError(func(err *amqp.Error) {
+		log.Errorf(err.Error())
+	})
 	return Consumer, nil
 }
 
