@@ -35,7 +35,7 @@ func NewSimpleConsumer(url, user, password, vhost, exchangeType, exchangeName, q
 		exchangeType:      exchangeType,
 		exchangeName:      exchangeName,
 		queueName:         queueName,
-		durable:           false,
+		durable:           true,
 		conErr:            conn.NotifyClose(make(chan *amqp.Error)),
 		reconnectInterval: reconnectInterval,
 		reconnectCount:    0,
@@ -82,6 +82,48 @@ func (c *consumer) Received(routeKey string, autoAck bool, handler func(receiveD
 	}
 	defer func() { _ = c.channel.Close() }()
 
+	// 死信交换机和队列配置
+	{
+		// 声明死信交换机
+		err = c.channel.ExchangeDeclare(
+			c.exchangeName+".dlx",
+			c.exchangeType,
+			c.durable,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			log.Error(err.Error())
+		}
+
+		// 声明死信队列
+		_, err = c.channel.QueueDeclare(
+			c.queueName+".dlx",
+			c.durable,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			log.Error(err.Error())
+		}
+
+		// 绑定死信交换机和队列
+		err = c.channel.QueueBind(
+			c.queueName+".dlx",
+			"dead",
+			c.exchangeName+".dlx",
+			false,
+			nil,
+		)
+		if err != nil {
+			log.Error(err.Error())
+		}
+	}
+
 	// 声明交换机
 	err = c.channel.ExchangeDeclare(
 		c.exchangeName,
@@ -103,7 +145,11 @@ func (c *consumer) Received(routeKey string, autoAck bool, handler func(receiveD
 		false,
 		false,
 		false,
-		nil,
+		amqp.Table{
+			// 在常队列中声明 nack/reject 消息转发目的交换机名称
+			"x-dead-letter-exchange":    c.exchangeName + ".dlx",
+			"x-dead-letter-routing-key": "dead",
+		},
 	)
 	if err != nil {
 		log.Errorf(err.Error())
@@ -141,7 +187,8 @@ func (c *consumer) Received(routeKey string, autoAck bool, handler func(receiveD
 		} else {
 			err = handler(string(msg.Body))
 			if err != nil {
-				msg.ReplyTo = c.queueName
+				// 启用死信交换机后，此处 requeue 一定要设为 false
+				_ = msg.Nack(false, false)
 			} else {
 				_ = msg.Ack(false)
 			}

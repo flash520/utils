@@ -35,7 +35,7 @@ func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, q
 		exchangeType:      exchangeType,
 		exchangeName:      exchangeName,
 		queueName:         queueName,
-		durable:           false,
+		durable:           true,
 		conErr:            conn.NotifyClose(make(chan *amqp.Error)),
 		reconnectInterval: reconnectInterval,
 		reconnectCount:    0,
