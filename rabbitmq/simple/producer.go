@@ -98,6 +98,7 @@ func (p *producer) Send(routingKey string, data string) error {
 			return err
 		}
 	}
+
 	// 发送数据到交换机
 	err = p.channel.Publish(
 		p.exchangeName,
