@@ -9,9 +9,9 @@ import (
 )
 
 type consumer struct {
-	client sarama.Consumer
-	config *sarama.Config
-	url    []string
+	client  sarama.Consumer
+	config  *sarama.Config
+	brokers []string
 }
 
 // NewKafkaConsumer 创建新的 kafka Consumer 实例
@@ -25,9 +25,9 @@ func NewKafkaConsumer(url string, topic string) (*consumer, error) {
 	}
 
 	return &consumer{
-		client: client,
-		config: config,
-		url:    addr,
+		client:  client,
+		config:  config,
+		brokers: addr,
 	}, nil
 }
 
@@ -35,7 +35,7 @@ func NewKafkaConsumer(url string, topic string) (*consumer, error) {
 func (c *consumer) connect() error {
 	var err error
 	if c.client == nil {
-		c.client, err = sarama.NewConsumer(c.url, c.config)
+		c.client, err = sarama.NewConsumer(c.brokers, c.config)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -48,7 +48,7 @@ func (c *consumer) connect() error {
 func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessage)) {
 	var err error
 	if c.client == nil {
-		c.client, err = sarama.NewConsumer(c.url, c.config)
+		c.client, err = sarama.NewConsumer(c.brokers, c.config)
 		if err != nil {
 			log.Error(err)
 			return
