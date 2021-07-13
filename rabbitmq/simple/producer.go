@@ -44,8 +44,7 @@ func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, q
 
 	// 初始化 channel
 	for Producer.channel == nil {
-		time.Sleep(time.Second)
-		err = Producer.initChannel()
+		err = Producer.newChannel()
 		if err != nil {
 			log.Error(err.Error())
 			continue
@@ -54,6 +53,7 @@ func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, q
 		if Producer.channel != nil {
 			break
 		}
+		time.Sleep(time.Second)
 	}
 
 	// 开启协程监听连接状态，如果断开，则尝试重新连接并输出日志
@@ -61,7 +61,7 @@ func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, q
 	return Producer, nil
 }
 
-func (p *producer) initChannel() error {
+func (p *producer) newChannel() error {
 	var err error
 	// 如果通道为空则建立通道，后续复用该通道
 	if p.channel == nil {
@@ -92,8 +92,11 @@ func (p *producer) initChannel() error {
 // Send 发送数据，channel 复用
 func (p *producer) Send(routingKey string, data string) error {
 	var err error
-	if p.channel != nil {
-		time.Sleep(time.Millisecond * 500)
+	if p.channel == nil {
+		err = p.newChannel()
+		if err != nil {
+			return err
+		}
 	}
 	// 发送数据到交换机
 	err = p.channel.Publish(
