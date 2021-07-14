@@ -45,7 +45,10 @@ func (c *consumer) connect() error {
 }
 
 // Receive 消息处理
-func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessage)) {
+// offset 是一个 map[int]int64, key 为分区号, value 为对应分区下已经消费的 offset 位置
+// offset 如果取最新的消息 value 设为 -1，建议设为上次消费的 offset 位置, 消费位置由业务模块自行处理，如：存储到数据库或者 redis
+// offset 可以设为 nil ,意味着将全部从新消费
+func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessage), offset map[int]int64) {
 	var err error
 	if c.consumer == nil {
 		c.consumer, err = sarama.NewConsumer(c.brokers, c.config)
@@ -62,11 +65,20 @@ func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessag
 	}
 	log.Infof("分区列表: %v\n", partitionList)
 
+	var Offset = make(map[int]int64)
+	if offset == nil {
+	} else {
+		Offset = offset
+	}
+
 	// 遍历分区列表
 	for partition := range partitionList {
 		go func(partition int) {
 			// 针对每个分区创建一个对应的分区消费者
-			pc, err := c.consumer.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
+			if _, ok := Offset[partition]; !ok {
+				Offset[partition] = 0
+			}
+			pc, err := c.consumer.ConsumePartition(topic, int32(partition), Offset[partition])
 			if err != nil {
 				fmt.Printf("failed to start consumer for partition %d,err:%v\n", partition, err)
 				return

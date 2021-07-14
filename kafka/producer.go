@@ -17,6 +17,8 @@ type producer struct {
 }
 
 // NewKafkaAsyncProducer 创建一个新的异步 kafka Producer 实例
+// returnValue 设置是否启用异步处理状态通知和错误消息状态通知
+// 如果 returnValue 为 true，则必须调用 LogHandler 接口以及实现内部的处理函数 func(msgType string, data interface{})
 func NewKafkaAsyncProducer(urls string, returnValue bool) (*producer, error) {
 	var err error
 	brokers := strings.Split(urls, ",")
@@ -49,14 +51,15 @@ func NewKafkaAsyncProducer(urls string, returnValue bool) (*producer, error) {
 }
 
 // NewKafkaSyncProducer 创建一个新的 kafka Producer 实例
-func NewKafkaSyncProducer(urls string, returnValue bool) (*producer, error) {
+// 同步实例的 Return.Successes 和 Return.Errors 参数必须为 true, 这也是默认值
+func NewKafkaSyncProducer(urls string) (*producer, error) {
 	var err error
 	brokers := strings.Split(urls, ",")
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
-	config.Producer.Return.Successes = returnValue
-	config.Producer.Return.Errors = returnValue
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
 
 	p, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
@@ -97,8 +100,8 @@ func (p *producer) connectSyncProducer() error {
 	return nil
 }
 
-// LoggerHandler 异步 Producer 如果启用了 return.Successes 参数，则必须调用本方法
-func (p *producer) LoggerHandler(handler func(logType string, data interface{})) {
+// LogHandler 异步 Producer 如果启用了 return.Successes 参数，则必须调用本方法
+func (p *producer) LogHandler(handler func(logType string, data interface{})) {
 	for {
 		select {
 		case s := <-p.asyncProducer.Successes():
