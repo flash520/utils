@@ -9,33 +9,33 @@ import (
 )
 
 type consumer struct {
-	client  sarama.Consumer
-	config  *sarama.Config
-	brokers []string
+	consumer sarama.Consumer
+	config   *sarama.Config
+	brokers  []string
 }
 
 // NewKafkaConsumer 创建新的 kafka Consumer 实例
 func NewKafkaConsumer(url string, topic string) (*consumer, error) {
 	addr := strings.Split(url, ",")
 	config := sarama.NewConfig()
-	client, err := sarama.NewConsumer(addr, config)
+	c, err := sarama.NewConsumer(addr, config)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
 
 	return &consumer{
-		client:  client,
-		config:  config,
-		brokers: addr,
+		consumer: c,
+		config:   config,
+		brokers:  addr,
 	}, nil
 }
 
 // connect 建立连接
 func (c *consumer) connect() error {
 	var err error
-	if c.client == nil {
-		c.client, err = sarama.NewConsumer(c.brokers, c.config)
+	if c.consumer == nil {
+		c.consumer, err = sarama.NewConsumer(c.brokers, c.config)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -47,15 +47,15 @@ func (c *consumer) connect() error {
 // Receive 消息处理
 func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessage)) {
 	var err error
-	if c.client == nil {
-		c.client, err = sarama.NewConsumer(c.brokers, c.config)
+	if c.consumer == nil {
+		c.consumer, err = sarama.NewConsumer(c.brokers, c.config)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 	}
 	// 获取指定 topic 下的全部分区列表
-	partitionList, err := c.client.Partitions(topic)
+	partitionList, err := c.consumer.Partitions(topic)
 	if err != nil {
 		log.Error(err)
 		return
@@ -66,16 +66,16 @@ func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessag
 	for partition := range partitionList {
 		go func(partition int) {
 			// 针对每个分区创建一个对应的分区消费者
-			pc, err := c.client.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
+			pc, err := c.consumer.ConsumePartition(topic, int32(partition), sarama.OffsetNewest)
 			if err != nil {
 				fmt.Printf("failed to start consumer for partition %d,err:%v\n", partition, err)
 				return
 			}
 
 			// 异步从每个分区消费信息
-			go func(c sarama.PartitionConsumer) {
+			go func(pc sarama.PartitionConsumer) {
 				defer pc.AsyncClose()
-				for msg := range c.Messages() {
+				for msg := range pc.Messages() {
 					handler(msg)
 				}
 			}(pc)
