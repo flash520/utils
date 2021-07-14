@@ -16,8 +16,8 @@ type producer struct {
 	asyncProducer sarama.AsyncProducer
 }
 
-// NewKafkaAsyncProducer 创建一个新的异步 kafka Producer 实例
-// returnValue 设置是否启用异步处理状态通知和错误消息状态通知
+// NewKafkaAsyncProducer 创建一个新的异步 kafka Producer 实例，
+// returnValue 设置是否启用异步处理状态通知和错误消息状态通知，
 // 如果 returnValue 为 true，则必须调用 LogHandler 接口以及实现内部的处理函数 func(msgType string, data interface{})
 func NewKafkaAsyncProducer(urls string, returnValue bool) (*producer, error) {
 	var err error
@@ -50,7 +50,7 @@ func NewKafkaAsyncProducer(urls string, returnValue bool) (*producer, error) {
 	}, nil
 }
 
-// NewKafkaSyncProducer 创建一个新的 kafka Producer 实例
+// NewKafkaSyncProducer 创建一个新的 kafka Producer 实例，
 // 同步实例的 Return.Successes 和 Return.Errors 参数必须为 true, 这也是默认值
 func NewKafkaSyncProducer(urls string) (*producer, error) {
 	var err error

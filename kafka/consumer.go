@@ -45,8 +45,8 @@ func (c *consumer) connect() error {
 }
 
 // Receive 消息处理
-// offset 是一个 map[int]int64, key 为分区号, value 为对应分区下已经消费的 offset 位置
-// offset 如果取最新的消息 value 设为 -1，建议设为上次消费的 offset 位置, 消费位置由业务模块自行处理，如：存储到数据库或者 redis
+// offset 是一个 map[int]int64, key 为分区号, value 为对应分区下已经消费的 offset 位置，
+// 如果取最新的消息 value 设为 -1，建议设为上次消费的 offset 位置, 消费位置由业务模块自行处理，如：存储到数据库或者 redis，
 // offset 可以设为 nil ,意味着将全部从新消费
 func (c *consumer) Receive(topic string, handler func(msg *sarama.ConsumerMessage), offset map[int]int64) {
 	var err error
