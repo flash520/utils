@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/nacos-group/nacos-sdk-go v1.0.7
@@ -15,6 +16,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0
+	github.com/xtaci/smux v1.5.15
 	github.com/xuanbo/eureka-client v0.0.3
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	gorm.io/driver/mysql v1.0.6
