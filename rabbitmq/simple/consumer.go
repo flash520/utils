@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"gitee.com/flash520/utils/randomstring"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
@@ -167,13 +168,14 @@ func (c *consumer) Received(routeKey string, autoAck bool, handler func(receiveD
 		log.Errorf(err.Error())
 	}
 
+	// 自动生成 ConsumerID 作为消费者标记，并确保在一个消息频道唯一
 	messages, err := c.channel.Consume(
 		queue.Name, // 队列名称
-		"",         // 消费者标记，请确保在一个消息频道唯一
-		autoAck,    // 是否自动响应确认，这里设置为false，手动确认
-		false,      // 是否私有队列，false标识允许多个 consumer 向该队列投递消息，true 表示独占
-		false,      // RabbitMQ不支持noLocal标志。
-		false,      // 队列如果已经在服务器声明，设置为 true ，否则设置为 false；
+		randomstring.RandStringBytesMaskImprSrcUnsafe(12), // 消费者标记，请确保在一个消息频道唯一
+		autoAck, // 是否自动响应确认，这里设置为false，手动确认
+		false,   // 是否私有队列，false标识允许多个 consumer 向该队列投递消息，true 表示独占
+		false,   // RabbitMQ不支持noLocal标志。
+		false,   // 队列如果已经在服务器声明，设置为 true ，否则设置为 false；
 		nil,
 	)
 	if err != nil {
