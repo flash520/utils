@@ -1,46 +1,45 @@
 package main
 
 import (
-	"strconv"
-
 	"gitee.com/flash520/utils/rabbitmq/simple"
 	"gitee.com/flash520/utils/rabbitmq/test/handler"
-	log "github.com/sirupsen/logrus"
+	"gitee.com/flash520/utils/response"
+	"github.com/gin-contrib/pprof"
+	"github.com/gin-gonic/gin"
 )
+
+var (
+	producer, err = simple.NewSimpleProducer(
+		"amqp://guest:guest@localhost:5672/", "test", "test",
+	)
+	consumer, _ = simple.NewSimpleConsumer(
+		"amqp://guest:guest@127.0.0.1:5672/", "test", "test", "test", 2,
+	)
+)
+
+func init() {
+	go receive()
+}
 
 func main() {
 
-	// Consumer
-	c, err := simple.NewSimpleConsumer(
-		"localhost", "guest", "guest", "mm-im", "direct",
-		"ex1", "qu1", 2)
+	r := gin.Default()
+	pprof.Register(r)
+	r.GET("/send/:id", send)
+
+	_ = r.Run(":80")
+}
+
+func send(c *gin.Context) {
+	msg := c.Param("id")
+	err = producer.Send("test", msg)
 	if err != nil {
-		log.Error(err.Error())
-		return
+		response.Fail(c, 0, err, nil)
 	}
+	response.Success(c, 1, "success", nil)
+}
 
-	h := &handler.Handler{}
-
-	go c.Received("failover", true, h.Receive)
-
-	// Producer
-	p, err := simple.NewSimpleProducer(
-		"localhost", "guest", "guest", "mm-im", "direct",
-		"ex1", "qu1", 2)
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	go func() {
-
-		for i := 0; i < 1000; i++ {
-			err = p.Send("failover", "message body: "+strconv.Itoa(i))
-			if err != nil {
-				log.Error(err.Error())
-			}
-		}
-	}()
-
-	select {}
+func receive() {
+	h := handler.Handler{}
+	consumer.Received(false, h.Receive)
 }

@@ -9,7 +9,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"net"
 	"os"
@@ -98,20 +97,11 @@ func Input() {
 		}
 	}()
 
-	log.Info("请输入传输入的内容:\n", s.ID())
-	reader := bufio.NewReader(os.Stdin)
-
-	input, err := reader.ReadString('\n')
-	if err != nil {
-		log.Errorf(err.Error())
-		return
+	f, err := os.Open("/Users/koulei/唐伯虎点秋香.mp4")
+	buf := make([]byte, 4096)
+	for {
+		n, _ := f.Read(buf)
+		s.Write(buf[:n])
+		time.Sleep(time.Second * 2)
 	}
-	_, err = s.Write([]byte(input))
-	if err != nil {
-		log.Errorf("写入网络失败")
-	} else {
-		log.Warn("数据发送成功")
-	}
-
-	log.Info(commonPool.GetNumActive(), commonPool.GetDestroyedCount(), commonPool.GetNumIdle(), commonPool.IsClosed())
 }

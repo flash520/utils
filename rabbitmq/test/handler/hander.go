@@ -2,14 +2,15 @@ package handler
 
 import (
 	"errors"
-	"fmt"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Handler struct {
 }
 
 func (h *Handler) Receive(msg string) error {
-	fmt.Printf("\rRabbitMQ Consumer ReceiveData: %s", msg)
+	log.Infof("RabbitMQ Consumer ReceiveData:\n %s\n", msg)
 	return errors.New("failed")
 	//return nil
 }

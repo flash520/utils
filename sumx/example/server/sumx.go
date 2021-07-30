@@ -10,6 +10,7 @@ package main
 
 import (
 	"net"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	sumx "github.com/xtaci/smux"
@@ -22,7 +23,7 @@ func main() {
 	}
 
 	log.Infof("MultiComm 多路复用服务器 Starting...")
-	for {
+	for i := 0; i < 100; i++ {
 		conn, err := l.Accept()
 		if err != nil {
 			log.Errorf("服务接收请求连接失败, err: %s\n", err)
@@ -31,6 +32,7 @@ func main() {
 
 		go sessionHandler(conn)
 	}
+	log.Info()
 }
 
 func sessionHandler(conn net.Conn) {
@@ -62,11 +64,18 @@ func streamHandler(s *sumx.Stream) {
 
 	defer func() { _ = s.Close() }()
 
-	buf := make([]byte, 1024)
-	n, err = s.Read(buf)
-	if err != nil {
-		log.Errorf("streamID: %v 读取数据失败, err: %s", s.ID(), err)
-		return
+	_ = s.SetReadDeadline(time.Now().Add(time.Second * 3))
+	buf := make([]byte, 4096)
+	var d int
+	for {
+
+		n, err = s.Read(buf)
+		d += n
+		s.SetReadDeadline(time.Now().Add(time.Second * 3))
+		if err != nil {
+			log.Errorf("streamID: %v 读取数据失败, err: %s", s.ID(), err)
+			return
+		}
+		log.Infof("streamID: %v 成功读取数据: %d", s.ID(), d)
 	}
-	log.Infof("streamID: %v 成功读取数据: %s", s.ID(), string(buf[:n]))
 }
