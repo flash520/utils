@@ -1,7 +1,6 @@
 package simple
 
 import (
-	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -22,9 +21,8 @@ type producer struct {
 }
 
 // NewSimpleProducer 创建一个新的 Producer 实例
-func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, queueName string, reconnectInterval int) (*producer, error) {
-	addr := fmt.Sprintf("amqp://%s:%s@%s", user, password, url)
-	conn, err := amqp.DialConfig(addr, amqp.Config{Vhost: vhost})
+func NewSimpleProducer(url, exchangeName, queueName string) (*producer, error) {
+	conn, err := amqp.Dial(url)
 	if err != nil {
 		log.Error("connect: ", err.Error())
 		return nil, err
@@ -39,7 +37,7 @@ func NewSimpleProducer(url, user, password, vhost, exchangeType, exchangeName, q
 		conErr:            conn.NotifyClose(make(chan *amqp.Error)),
 		reconnectInterval: reconnectInterval,
 		reconnectCount:    0,
-		mqURL:             addr,
+		mqURL:             url,
 	}
 
 	// 初始化 channel
@@ -118,6 +116,7 @@ func (p *producer) Send(routingKey string, data string) error {
 
 // Close 手动关闭连接
 func (p *producer) Close() {
+	_ = p.channel.Close()
 	_ = p.connect.Close()
 }
 

@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Shopify/sarama v1.29.1
 	github.com/eclipse/paho.mqtt.golang v1.3.4
+	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/golang/snappy v0.0.4 // indirect
