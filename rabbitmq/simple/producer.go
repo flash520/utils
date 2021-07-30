@@ -7,7 +7,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type producer struct {
+type Producer struct {
 	connect           *amqp.Connection
 	channel           *amqp.Channel
 	exchangeType      string           // 交换机类型
@@ -21,14 +21,14 @@ type producer struct {
 }
 
 // NewSimpleProducer 创建一个新的 Producer 实例
-func NewSimpleProducer(url, exchangeName, queueName string) (*producer, error) {
+func NewSimpleProducer(url, exchangeName, queueName string) (*Producer, error) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
 		log.Error("connect: ", err.Error())
 		return nil, err
 	}
 
-	Producer := &producer{
+	producer := &Producer{
 		connect:           conn,
 		exchangeType:      exchangeType,
 		exchangeName:      exchangeName,
@@ -41,25 +41,25 @@ func NewSimpleProducer(url, exchangeName, queueName string) (*producer, error) {
 	}
 
 	// 初始化 channel
-	for Producer.channel == nil {
-		err = Producer.newChannel()
+	for producer.channel == nil {
+		err = producer.newChannel()
 		if err != nil {
 			log.Error(err.Error())
 			continue
 		}
 
-		if Producer.channel != nil {
+		if producer.channel != nil {
 			break
 		}
 		time.Sleep(time.Second)
 	}
 
 	// 开启协程监听连接状态，如果断开，则尝试重新连接并输出日志
-	go Producer.OnConnectionErrorReConnection()
-	return Producer, nil
+	go producer.OnConnectionErrorReConnection()
+	return producer, nil
 }
 
-func (p *producer) newChannel() error {
+func (p *Producer) newChannel() error {
 	var err error
 	// 如果通道为空则建立通道，后续复用该通道
 	if p.channel == nil {
@@ -88,7 +88,7 @@ func (p *producer) newChannel() error {
 }
 
 // Send 发送数据，channel 复用
-func (p *producer) Send(routingKey string, data string) error {
+func (p *Producer) Send(routingKey string, data string) error {
 	var err error
 	if p.channel == nil {
 		err = p.newChannel()
@@ -115,13 +115,13 @@ func (p *producer) Send(routingKey string, data string) error {
 }
 
 // Close 手动关闭连接
-func (p *producer) Close() {
+func (p *Producer) Close() {
 	_ = p.channel.Close()
 	_ = p.connect.Close()
 }
 
 // OnConnectionErrorReConnection 监听连接错误，自动重连
-func (p *producer) OnConnectionErrorReConnection() {
+func (p *Producer) OnConnectionErrorReConnection() {
 	select {
 	case e := <-p.conErr:
 		log.Errorf("RabbitMQ Producer 连接错误: %s\n", e)

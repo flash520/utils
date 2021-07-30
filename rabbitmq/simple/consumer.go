@@ -8,7 +8,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type consumer struct {
+type Consumer struct {
 	connect           *amqp.Connection
 	channel           *amqp.Channel
 	exchangeType      string                     // 交换机类型
@@ -31,7 +31,7 @@ const (
 
 // NewSimpleConsumer 创建一个新的 Consumer 实例
 // url 示例: amqp://user:password@addr:5672/
-func NewSimpleConsumer(url, exchangeName, queueName, routeKey string, chanNumber int) (*consumer, error) {
+func NewSimpleConsumer(url, exchangeName, queueName, routeKey string, chanNumber int) (*Consumer, error) {
 	var err error
 	conn, err := amqp.Dial(url)
 	if err != nil {
@@ -39,7 +39,7 @@ func NewSimpleConsumer(url, exchangeName, queueName, routeKey string, chanNumber
 		return nil, err
 	}
 
-	Consumer := &consumer{
+	consumer := &Consumer{
 		connect:           conn,
 		exchangeType:      exchangeType,
 		exchangeName:      exchangeName,
@@ -54,15 +54,15 @@ func NewSimpleConsumer(url, exchangeName, queueName, routeKey string, chanNumber
 	}
 
 	// 队列绑定
-	Consumer.declare()
+	consumer.declare()
 
 	// 开启协程监听连接状态，如果断开，则尝试重新连接并输出日志
-	go Consumer.OnConnectionErrorReConnection()
+	go consumer.OnConnectionErrorReConnection()
 
-	return Consumer, nil
+	return consumer, nil
 }
 
-func (c *consumer) Destroy() {
+func (c *Consumer) Destroy() {
 	err := c.channel.Close()
 	if err != nil {
 		return
@@ -74,7 +74,7 @@ func (c *consumer) Destroy() {
 }
 
 // OnConnectionErrorReConnection 连接错误，自动重连
-func (c *consumer) OnConnectionErrorReConnection() {
+func (c *Consumer) OnConnectionErrorReConnection() {
 	select {
 	case e := <-c.conErr:
 		log.Errorf("RabbitMQ Consumer 连接错误: %s\n", e)
@@ -99,7 +99,7 @@ func (c *consumer) OnConnectionErrorReConnection() {
 }
 
 // declare 队列绑定
-func (c *consumer) declare() {
+func (c *Consumer) declare() {
 	var err error
 	c.channel, err = c.connect.Channel()
 	if err != nil {
@@ -192,7 +192,7 @@ func (c *consumer) declare() {
 }
 
 // Received 通过回调函数处理接收到的消息
-func (c *consumer) Received(autoAck bool, handler func(receiveData string) error) {
+func (c *Consumer) Received(autoAck bool, handler func(receiveData string) error) {
 	defer func() { c.Destroy() }()
 
 	c.callbackHandler = handler
@@ -211,7 +211,7 @@ func (c *consumer) Received(autoAck bool, handler func(receiveData string) error
 				c.queueName, // 队列名称
 				randomstring.RandStringBytesMaskImprSrcUnsafe(12), // 消费者标记，请确保在一个消息频道唯一
 				autoAck, // 是否自动响应确认，这里设置为false，手动确认
-				false,   // 是否私有队列，false标识允许多个 consumer 向该队列投递消息，true 表示独占
+				false,   // 是否私有队列，false标识允许多个 Consumer 向该队列投递消息，true 表示独占
 				false,   // RabbitMQ不支持noLocal标志。
 				false,   // 队列如果已经在服务器声明，设置为 true ，否则设置为 false；
 				nil,
