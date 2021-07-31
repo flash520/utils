@@ -1,4 +1,12 @@
-package simple
+/**
+ * @Author: koulei
+ * @Description:
+ * @File: delay
+ * @Version: 1.0.0
+ * @Date: 2021/7/31 17:09
+ */
+
+package delay
 
 import (
 	"time"
@@ -27,14 +35,14 @@ type Consumer struct {
 const (
 	reconnectInterval = 5
 	exchangeType      = "direct"
-	routeKey          = "normal"
+	delayExchangeType = "x-delayed-message"
+	delayArgs         = "x-delayed-type"
+	routeKey          = "delay"
 	deadRouteKey      = "dead"
 	deadSuffix        = ".dlx"
 )
 
-// NewSimpleConsumer 创建一个新的 Consumer 实例
-// url 示例: amqp://user:password@addr:5672/
-func NewSimpleConsumer(url, exchangeName, queueName string, chanNumber int) (*Consumer, error) {
+func NewDelayConsumer(url, exchangeName, queueName string, chanNumber int) (*Consumer, error) {
 	var err error
 	conn, err := amqp.Dial(url)
 	if err != nil {
@@ -62,6 +70,7 @@ func NewSimpleConsumer(url, exchangeName, queueName string, chanNumber int) (*Co
 	return consumer, nil
 }
 
+// Destroy 关闭连接
 func (c *Consumer) Destroy() {
 	err := c.channel.Close()
 	if err != nil {
@@ -139,7 +148,7 @@ func (c *Consumer) Declare() {
 	err = c.channel.QueueBind(
 		c.queueName+deadSuffix,
 		deadRouteKey,
-		c.exchangeName+deadSuffix,
+		c.exchangeName+".dlx",
 		false,
 		nil,
 	)
@@ -147,21 +156,24 @@ func (c *Consumer) Declare() {
 		log.Error(err.Error())
 	}
 
-	// 声明常规交换机
+	// 声明延时交换机
 	err = c.channel.ExchangeDeclare(
 		c.exchangeName,
-		exchangeType,
+		delayExchangeType,
 		c.durable,
 		false,
 		false,
 		false,
-		amqp.Table{},
+		amqp.Table{
+			// 延时交换机一定要指定类型
+			delayArgs: exchangeType,
+		},
 	)
 	if err != nil {
 		log.Errorf(err.Error())
 	}
 
-	// 声明常规队列
+	// 声明延时队列
 	_, err = c.channel.QueueDeclare(
 		c.queueName,
 		c.durable,
@@ -171,21 +183,21 @@ func (c *Consumer) Declare() {
 		amqp.Table{
 			// 添加死信队列配置
 			// 在常队列中声明 nack/reject 消息转发目的交换机名称
-			"x-dead-letter-exchange":    c.exchangeName + ".dlx",
-			"x-dead-letter-routing-key": "dead",
+			"x-dead-letter-exchange":    c.exchangeName + deadSuffix,
+			"x-dead-letter-routing-key": deadRouteKey,
 		},
 	)
 	if err != nil {
 		log.Errorf(err.Error())
 	}
 
-	// 绑定常规队列
+	// 绑定延时交换机和延时队列
 	err = c.channel.QueueBind(
 		c.queueName,
 		routeKey,
 		c.exchangeName,
 		false,
-		nil,
+		amqp.Table{},
 	)
 	if err != nil {
 		log.Errorf(err.Error())

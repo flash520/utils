@@ -1,4 +1,12 @@
-package simple
+/**
+ * @Author: koulei
+ * @Description:
+ * @File: producer
+ * @Version: 1.0.0
+ * @Date: 2021/7/31 17:39
+ */
+
+package delay
 
 import (
 	"time"
@@ -20,8 +28,8 @@ type Producer struct {
 	mqURL             string           // 服务器地址
 }
 
-// NewSimpleProducer 创建一个新的 Producer 实例
-func NewSimpleProducer(url, exchangeName, queueName string) (*Producer, error) {
+// NewDelayProducer 创建一个新的 Producer 实例
+func NewDelayProducer(url, exchangeName, queueName string) (*Producer, error) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
 		log.Error("connect: ", err.Error())
@@ -60,12 +68,11 @@ func (p *Producer) newChannel() {
 }
 
 // Send 发送数据，channel 复用
-func (p *Producer) Send(data, routeKey, expire string) error {
+func (p *Producer) Send(data, routeKey, delay string) error {
 	var err error
 	if routeKey == "" {
-		routeKey = "normal"
+		routeKey = "delay"
 	}
-
 	// 发送数据到交换机
 	err = p.channel.Publish(
 		p.exchangeName,
@@ -75,7 +82,12 @@ func (p *Producer) Send(data, routeKey, expire string) error {
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(data),
-			Expiration:  expire,
+			// Expiration 为消息过期时间，消息到达过期后自动转到死信队列
+			// Expiration: delay,
+			Headers: map[string]interface{}{
+				// 使用延时插件，在 header 中定义延时时间
+				"x-delay": delay,
+			},
 		})
 	if err != nil {
 		return err

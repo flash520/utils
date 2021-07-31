@@ -13,11 +13,12 @@ var (
 		"amqp://guest:guest@localhost:5672/", "test", "test",
 	)
 	consumer, _ = simple.NewSimpleConsumer(
-		"amqp://guest:guest@127.0.0.1:5672/", "test", "test", "test", 2,
+		"amqp://guest:guest@127.0.0.1:5672/", "test", "test", 2,
 	)
 )
 
 func init() {
+	consumer.Declare()
 	go receive()
 }
 
@@ -32,9 +33,10 @@ func main() {
 
 func send(c *gin.Context) {
 	msg := c.Param("id")
-	err = producer.Send("test", msg)
+	err = producer.Send(msg, "", "")
 	if err != nil {
 		response.Fail(c, 0, err, nil)
+		return
 	}
 	response.Success(c, 1, "success", nil)
 }
