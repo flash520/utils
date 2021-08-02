@@ -224,9 +224,9 @@ func (c *Consumer) Received(autoAck bool, handler func(receiveData interface{}) 
 			for msg := range messages {
 				// 通过回调处理消息
 				if autoAck {
-					_ = handler(string(msg.Body))
+					_ = handler(msg.Body)
 				} else {
-					err = handler(string(msg.Body))
+					err = handler(msg.Body)
 					if err != nil {
 						// 启用死信交换机后，此处 requeue 一定要设为 false
 						// 当消息被 Nack 和 Reject 否认确认时，该消息将发送到 死信队列
