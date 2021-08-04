@@ -84,12 +84,10 @@ func (p *Producer) Send(data, routeKey, delay, objectType string) error {
 			Body:        []byte(data),
 			// Expiration 为消息过期时间，消息到达过期后自动转到死信队列
 			// Expiration: delay,
+			Type: objectType,
 			Headers: map[string]interface{}{
 				// 使用延时插件，在 header 中定义延时时间
 				"x-delay": delay,
-				// 声明发送的数据的原对象类型名称，便于消费者实例化数据时使用
-				// 该声明可以为空
-				"object": objectType,
 			},
 		})
 	if err != nil {

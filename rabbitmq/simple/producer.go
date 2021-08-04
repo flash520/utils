@@ -76,11 +76,7 @@ func (p *Producer) Send(data, routeKey, expire, objectType string) error {
 			ContentType: "text/plain",
 			Body:        []byte(data),
 			Expiration:  expire,
-			Headers: map[string]interface{}{
-				// 声明发送的数据的原对象类型名称，便于消费者实例化数据时使用
-				// 该声明可以为空
-				"object": objectType,
-			},
+			Type:        objectType,
 		})
 	if err != nil {
 		return err
