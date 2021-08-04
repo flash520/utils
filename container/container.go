@@ -69,3 +69,9 @@ func (c *Containers) FuzzyDelete(keyPre string) {
 		return true
 	})
 }
+
+// Update 更新容器中注册的内容
+func (c *Containers) Update(key string, value interface{}) bool {
+	sMap.Store(key, value)
+	return true
+}
