@@ -224,10 +224,8 @@ func (c *Consumer) Received(autoAck bool, handler func(receiveData, objectType s
 			for msg := range messages {
 				// 通过回调处理消息
 				if autoAck {
-					log.Infof("消息类型: %s\n", msg.Type)
 					_ = handler(string(msg.Body), msg.Type)
 				} else {
-					log.Infof("消息类型: %s\n", msg.Type)
 					err = handler(string(msg.Body), msg.Type)
 					if err != nil {
 						// 启用死信交换机后，此处 requeue 一定要设为 false
