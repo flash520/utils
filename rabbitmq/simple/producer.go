@@ -60,7 +60,7 @@ func (p *Producer) newChannel() {
 }
 
 // Send 发送数据，channel 复用
-func (p *Producer) Send(data, routeKey, expire string) error {
+func (p *Producer) Send(data, routeKey, expire, objectType string) error {
 	var err error
 	if routeKey == "" {
 		routeKey = "normal"
@@ -76,6 +76,11 @@ func (p *Producer) Send(data, routeKey, expire string) error {
 			ContentType: "text/plain",
 			Body:        []byte(data),
 			Expiration:  expire,
+			Headers: map[string]interface{}{
+				// 声明发送的数据的原对象类型名称，便于消费者实例化数据时使用
+				// 该声明可以为空
+				"object": objectType,
+			},
 		})
 	if err != nil {
 		return err
