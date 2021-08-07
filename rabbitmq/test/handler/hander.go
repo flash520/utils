@@ -9,8 +9,8 @@ import (
 type Handler struct {
 }
 
-func (h *Handler) Receive(msg string) error {
-	log.Infof("RabbitMQ Consumer ReceiveData:\n %s\n", msg)
+func (h *Handler) Receive(msg, msgType string) error {
+	log.Infof("RabbitMQ Consumer ReceiveData:\n消息内容: %s\n消息类型: %s\n", msg, msgType)
 	return errors.New("failed")
 	//return nil
 }
