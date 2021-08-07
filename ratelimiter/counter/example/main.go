@@ -26,13 +26,16 @@ func main() {
 }
 
 func rateLimiter() gin.HandlerFunc {
-	rl := counter.NewRateLimiter(2, time.Second*10)
+	rl := counter.NewRateLimiter(8, time.Second)
+	// rl := slidingWindow.NewRateLimiter(time.Second, 1, func() slidingWindow.Window {
+	// 	return slidingWindow.NewLocalWindow()
+	// })
 	return func(c *gin.Context) {
-		if rl.Grant() {
-			c.Next()
+		if !rl.Grant() {
+			c.Abort()
+			c.String(http.StatusOK, "-_-!! %s\n", "超过请求限速啦！")
 			return
 		}
-		c.String(http.StatusOK, "-_-!! %s\n", "超过请求限速啦！")
-		c.Abort()
+		c.Next()
 	}
 }

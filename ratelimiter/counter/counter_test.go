@@ -30,3 +30,10 @@ func TestNewRateLimiter(t *testing.T) {
 		log.Warn("阻断")
 	}
 }
+
+func BenchmarkRateLimiter_Grant(b *testing.B) {
+	limiter := NewRateLimiter(1, time.Second)
+	for i := 0; i < b.N; i++ {
+		limiter.Grant()
+	}
+}

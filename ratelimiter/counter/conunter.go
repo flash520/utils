@@ -8,7 +8,10 @@
 
 package counter
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type RateLimiter struct {
 	limitCount   int64         // 速率
@@ -18,11 +21,13 @@ type RateLimiter struct {
 }
 
 func NewRateLimiter(limitCount int64, interval time.Duration) *RateLimiter {
-	return &RateLimiter{
+	r := &RateLimiter{
 		limitCount: limitCount,
 		interval:   interval,
 		startAt:    time.Now(),
 	}
+	go r.rest()
+	return r
 }
 
 func (r *RateLimiter) Grant() bool {
@@ -34,7 +39,19 @@ func (r *RateLimiter) Grant() bool {
 		}
 		return false
 	}
-	r.startAt = time.Now()
-	r.requestCount = 0
+	// r.startAt = time.Now()
+	// r.requestCount = 0
 	return false
+}
+
+func (r *RateLimiter) rest() {
+	mutex := sync.Mutex{}
+	select {
+	case <-time.Tick(r.interval):
+		mutex.Lock()
+		r.startAt = time.Now()
+		r.requestCount = 0
+		mutex.Unlock()
+		go r.rest()
+	}
 }
