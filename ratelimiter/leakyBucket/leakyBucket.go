@@ -9,9 +9,8 @@
 package leakyBucket
 
 import (
+	"fmt"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type RateLimiter struct {
@@ -32,13 +31,14 @@ func NewRateLimiter(rate, size int64) *RateLimiter {
 func (r *RateLimiter) Grant() bool {
 	// 计算出水量
 	now := time.Now()
-	out := int64(time.Since(r.startAt).Seconds()) * r.rate
+	out := now.Sub(r.startAt).Milliseconds() / 1000 * r.rate
 
 	// 漏水后残余水
 	r.water = max(0, r.water-out)
-	log.Warn(r.water)
-	r.startAt = now
-	if r.water+1 < r.size {
+	fmt.Printf("桶内剩余水量: %v,出水量:%v\n", r.water, out)
+
+	if r.water < r.size {
+		r.startAt = now
 		r.water++
 		return true
 	}

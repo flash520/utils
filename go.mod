@@ -19,7 +19,9 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/xtaci/smux v1.5.15
 	github.com/xuanbo/eureka-client v0.0.3
+	go.uber.org/ratelimit v0.2.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gorm.io/driver/mysql v1.0.6
 	gorm.io/gorm v1.21.9
 )

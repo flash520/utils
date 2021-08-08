@@ -15,11 +15,11 @@ import (
 )
 
 func TestTokenBucket(t *testing.T) {
-	tokenRate := int64(5)
+	tokenRate := int64(10)
 	size := int64(10)
 	rateLimiter := NewRateLimiter(tokenRate, size)
 	for i := 0; i < 80; i++ {
-		time.Sleep(time.Microsecond * 1000)
+		time.Sleep(time.Millisecond * 100)
 		if rateLimiter.Grant() {
 			fmt.Println("Continue to process")
 			continue

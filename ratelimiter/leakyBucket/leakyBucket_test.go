@@ -9,23 +9,32 @@
 package leakyBucket
 
 import (
+	"fmt"
 	"testing"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func TestLeakyBucket(t *testing.T) {
-	rate := int64(1)
-	size := int64(2)
+	rate := int64(4)
+	size := int64(10)
 	limiter := NewRateLimiter(rate, size)
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 50; i++ {
 		time.Sleep(time.Millisecond * 100)
 		if limiter.Grant() {
-			log.Info("放行")
+			fmt.Printf("%d 放行\n", i)
 			continue
 		}
-		log.Error("阻断")
+		fmt.Println(time.Now().Unix(), "阻断")
 	}
+
+	// time.Sleep(time.Second * 3)
+	// for i := 0; i < 50; i++ {
+	// 	time.Sleep(time.Millisecond * 1000)
+	// 	if limiter.Grant() {
+	// 		fmt.Println("放行")
+	// 		continue
+	// 	}
+	// 	fmt.Println(time.Now().Unix(), "阻断")
+	// }
 }
