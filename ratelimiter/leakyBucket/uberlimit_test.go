@@ -17,7 +17,7 @@ import (
 )
 
 func TestUberLeakyBucket(t *testing.T) {
-	limiter := ratelimit.New(10)
+	limiter := ratelimit.New(300)
 
 	prev := time.Now()
 	for i := 0; i < 10; i++ {

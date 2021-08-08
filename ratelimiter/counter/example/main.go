@@ -10,9 +10,8 @@ package main
 
 import (
 	"net/http"
-	"time"
 
-	"gitee.com/flash520/utils/ratelimiter/counter"
+	"gitee.com/flash520/utils/ratelimiter/uberleakybucket"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +25,8 @@ func main() {
 }
 
 func rateLimiter() gin.HandlerFunc {
-	rl := counter.NewRateLimiter(8, time.Second)
+	rl := uberleakybucket.NewRateLimiter(500)
+	// rl := counter.NewRateLimiter(8, time.Second)
 	// rl := slidingWindow.NewRateLimiter(time.Second, 1, func() slidingWindow.Window {
 	// 	return slidingWindow.NewLocalWindow()
 	// })
