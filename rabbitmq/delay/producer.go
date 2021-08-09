@@ -30,7 +30,11 @@ type Producer struct {
 
 // NewDelayProducer 创建一个新的 Producer 实例
 func NewDelayProducer(url, exchangeName, queueName string) (*Producer, error) {
-	conn, err := amqp.Dial(url)
+	conn, err := amqp.DialConfig(url, amqp.Config{
+		Properties: map[string]interface{}{
+			"connection_name": "Go#Producer#Delay:" + exchangeName,
+		},
+	})
 	if err != nil {
 		log.Error("connect: ", err.Error())
 		return nil, err

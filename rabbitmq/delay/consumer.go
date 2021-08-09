@@ -44,7 +44,11 @@ const (
 
 func NewDelayConsumer(url, exchangeName, queueName string, chanNumber int) (*Consumer, error) {
 	var err error
-	conn, err := amqp.Dial(url)
+	conn, err := amqp.DialConfig(url, amqp.Config{
+		Properties: map[string]interface{}{
+			"connection_name": "Go#Consumer#Delay:" + queueName,
+		},
+	})
 	if err != nil {
 		log.Error("connect: ", err.Error())
 		return nil, err

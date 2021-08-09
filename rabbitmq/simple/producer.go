@@ -22,7 +22,11 @@ type Producer struct {
 
 // NewSimpleProducer 创建一个新的 Producer 实例
 func NewSimpleProducer(url, exchangeName, queueName string) (*Producer, error) {
-	conn, err := amqp.Dial(url)
+	conn, err := amqp.DialConfig(url, amqp.Config{
+		Properties: map[string]interface{}{
+			"connection_name": "Go#Producer#Simple:" + exchangeName,
+		},
+	})
 	if err != nil {
 		log.Error("connect: ", err.Error())
 		return nil, err
