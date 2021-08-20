@@ -65,19 +65,9 @@ func GenerateRSAKey(bits int) {
 // Encrypt 加密
 // plainText 加密内容
 // path 公钥文件地址
-func Encrypt(plainText []byte, path string) ([]byte, error) {
-	// 打开文件
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	// 读取文件的内容
-	info, _ := file.Stat()
-	buf := make([]byte, info.Size())
-	_, _ = file.Read(buf)
+func Encrypt(plainText, publicPem []byte) ([]byte, error) {
 	// pem解码
-	block, _ := pem.Decode(buf)
+	block, _ := pem.Decode(publicPem)
 	// x509解码
 	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
@@ -92,19 +82,9 @@ func Encrypt(plainText []byte, path string) ([]byte, error) {
 // EncryptBlock 分段加密
 // plainText 加密内容
 // path 公钥文件地址
-func EncryptBlock(plainText []byte, path string) ([]byte, error) {
-	// 打开文件
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	// 读取文件的内容
-	info, _ := file.Stat()
-	buf := make([]byte, info.Size())
-	_, _ = file.Read(buf)
+func EncryptBlock(plainText, publicPem []byte) ([]byte, error) {
 	// pem解码
-	block, _ := pem.Decode(buf)
+	block, _ := pem.Decode(publicPem)
 	// x509解码
 	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
@@ -134,18 +114,9 @@ func EncryptBlock(plainText []byte, path string) ([]byte, error) {
 // Decrypt 解密
 // cipherText 需要解密的byte数据
 // path 私钥文件路径
-func Decrypt(cipherText []byte, path string) ([]byte, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-	// 获取文件内容
-	info, _ := file.Stat()
-	buf := make([]byte, info.Size())
-	_, _ = file.Read(buf)
+func Decrypt(cipherText, privatePem []byte) ([]byte, error) {
 	// pem解码
-	block, _ := pem.Decode(buf)
+	block, _ := pem.Decode(privatePem)
 	// X509解码
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
@@ -158,20 +129,14 @@ func Decrypt(cipherText []byte, path string) ([]byte, error) {
 // DecryptBlock 分段解密
 // cipherText 需要解密的byte数据
 // path 私钥文件路径
-func DecryptBlock(cipherText []byte, path string) ([]byte, error) {
-	file, err := os.Open(path)
+func DecryptBlock(cipherText, privatePem []byte) ([]byte, error) {
+	// pem解码
+	block, _ := pem.Decode(privatePem)
+	// X509解码
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = file.Close() }()
-	// 获取文件内容
-	info, _ := file.Stat()
-	buf := make([]byte, info.Size())
-	_, _ = file.Read(buf)
-	// pem解码
-	block, _ := pem.Decode(buf)
-	// X509解码
-	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 
 	keySize := privateKey.Size()
 	srcSize := len(cipherText)
