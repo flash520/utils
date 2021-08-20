@@ -85,12 +85,7 @@ func RSAEncrypt(plainText []byte, path string) ([]byte, error) {
 	// 类型断言
 	publicKey := publicKeyInterface.(*rsa.PublicKey)
 	// 对明文进行加密
-	cipherText, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText)
-	if err != nil {
-		return nil, err
-	}
-	// 返回密文
-	return cipherText, nil
+	return rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText)
 }
 
 // RSADecrypt 解密
@@ -114,10 +109,5 @@ func RSADecrypt(cipherText []byte, path string) ([]byte, error) {
 		return nil, err
 	}
 	// 对密文进行解密
-	plainText, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, cipherText)
-	if err != nil {
-		return nil, err
-	}
-	// 返回明文
-	return plainText, nil
+	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, cipherText)
 }
