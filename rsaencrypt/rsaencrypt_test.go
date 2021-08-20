@@ -15,15 +15,21 @@ import (
 )
 
 func TestRSAEncrypt(t *testing.T) {
-	GenerateRSAKey(1024)
-	// 加密
-	data := []byte("hello world")
+	// GenerateRSAKey(1024)
+	// 分段加密
+	data := []byte("hello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello worldhello world哈哈哈")
 	start := time.Now()
-	encrypt, _ := RSAEncrypt(data, "public.pem")
+	encrypt, err := EncryptBlock(data, "public.pem")
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println(string(encrypt), time.Since(start))
 
-	// 解密
+	// 分段解密
 	start = time.Now()
-	decrypt, _ := RSADecrypt(encrypt, "private.pem")
+	decrypt, err := DecryptBlock(encrypt, "private.pem")
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println(string(decrypt), time.Since(start))
 }

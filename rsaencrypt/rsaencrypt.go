@@ -9,6 +9,7 @@
 package rsaencrypt
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -61,10 +62,10 @@ func GenerateRSAKey(bits int) {
 	_ = pem.Encode(publicFile, &publicBlock)
 }
 
-// RSAEncrypt 加密
+// Encrypt 加密
 // plainText 加密内容
 // path 公钥文件地址
-func RSAEncrypt(plainText []byte, path string) ([]byte, error) {
+func Encrypt(plainText []byte, path string) ([]byte, error) {
 	// 打开文件
 	file, err := os.Open(path)
 	if err != nil {
@@ -88,10 +89,52 @@ func RSAEncrypt(plainText []byte, path string) ([]byte, error) {
 	return rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText)
 }
 
-// RSADecrypt 解密
+// EncryptBlock 分段加密
+// plainText 加密内容
+// path 公钥文件地址
+func EncryptBlock(plainText []byte, path string) ([]byte, error) {
+	// 打开文件
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = file.Close() }()
+	// 读取文件的内容
+	info, _ := file.Stat()
+	buf := make([]byte, info.Size())
+	_, _ = file.Read(buf)
+	// pem解码
+	block, _ := pem.Decode(buf)
+	// x509解码
+	publicKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	// 类型断言
+	publicKey := publicKeyInterface.(*rsa.PublicKey)
+	// 分段加密
+	offset, once, srcSize := 0, publicKey.Size()-11, len(plainText)
+	buffer := bytes.Buffer{}
+	for offset < srcSize {
+		endIndex := offset + once
+		if endIndex > len(plainText) {
+			endIndex = srcSize
+		}
+		// 加密一部分
+		bytesOnce, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText[offset:endIndex])
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytesOnce)
+		offset = endIndex
+	}
+	return buffer.Bytes(), nil
+}
+
+// Decrypt 解密
 // cipherText 需要解密的byte数据
 // path 私钥文件路径
-func RSADecrypt(cipherText []byte, path string) ([]byte, error) {
+func Decrypt(cipherText []byte, path string) ([]byte, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -110,4 +153,41 @@ func RSADecrypt(cipherText []byte, path string) ([]byte, error) {
 	}
 	// 对密文进行解密
 	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, cipherText)
+}
+
+// DecryptBlock 分段解密
+// cipherText 需要解密的byte数据
+// path 私钥文件路径
+func DecryptBlock(cipherText []byte, path string) ([]byte, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = file.Close() }()
+	// 获取文件内容
+	info, _ := file.Stat()
+	buf := make([]byte, info.Size())
+	_, _ = file.Read(buf)
+	// pem解码
+	block, _ := pem.Decode(buf)
+	// X509解码
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+
+	keySize := privateKey.Size()
+	srcSize := len(cipherText)
+	var offSet = 0
+	var buffer = bytes.Buffer{}
+	for offSet < srcSize {
+		endIndex := offSet + keySize
+		if endIndex > srcSize {
+			endIndex = srcSize
+		}
+		bytesOnce, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, cipherText[offSet:endIndex])
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytesOnce)
+		offSet = endIndex
+	}
+	return buffer.Bytes(), nil
 }
