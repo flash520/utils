@@ -28,7 +28,14 @@ type Mysql struct {
 }
 
 // CreateMysql 初始化 MySQL 数据库连接
-func CreateMysql(addr, username, password, dbname string) *Mysql {
+func CreateMysql(addr, username, password, dbname string, loglevel interface{}) *Mysql {
+	var logLevel logger.LogLevel
+	switch loglevel.(string) {
+	default:
+		logLevel = logger.Warn
+	case "INFO":
+		logLevel = logger.Info
+	}
 	var once sync.Once
 	once.Do(func() {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -39,7 +46,7 @@ func CreateMysql(addr, username, password, dbname string) *Mysql {
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true,
 			},
-			Logger:      logger.Default.LogMode(logger.Warn),
+			Logger:      logger.Default.LogMode(logLevel),
 			PrepareStmt: true,
 			NowFunc: func() time.Time {
 				return time.Now().Local()
