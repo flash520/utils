@@ -7,6 +7,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.3.4
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.1
+	github.com/go-basic/uuid v1.0.0
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
@@ -17,6 +18,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0
+	github.com/tidwall/gjson v1.8.1
 	github.com/xtaci/smux v1.5.15
 	github.com/xuanbo/eureka-client v0.0.3
 	go.uber.org/ratelimit v0.2.0
