@@ -8,5 +8,5 @@
 
 package utils
 
-const VERSION = "1.4.4"
+const VERSION = "1.4.5"
 const AUTHORS = "flash520972<flash520972@gmail.com>"
