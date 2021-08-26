@@ -17,6 +17,7 @@ require (
 	github.com/olivere/elastic/v7 v7.0.24
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/viper v1.8.1
 	github.com/streadway/amqp v1.0.0
 	github.com/tidwall/gjson v1.8.1
 	github.com/xtaci/smux v1.5.15
