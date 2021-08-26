@@ -10,8 +10,7 @@ package gf
 
 import "github.com/spf13/viper"
 
-func ParseConfig() interface{} {
-	var config interface{}
+func ParseConfig(ct interface{}) interface{} {
 	v := viper.New()
 	v.SetConfigFile("config/config.yml")
 	v.SetConfigType("yml")
@@ -19,9 +18,9 @@ func ParseConfig() interface{} {
 	if err != nil {
 		panic(err)
 	}
-	err = v.Unmarshal(&config)
+	err = v.Unmarshal(&ct)
 	if err != nil {
 		panic(err)
 	}
-	return config
+	return ct
 }
