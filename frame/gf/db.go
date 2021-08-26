@@ -10,6 +10,7 @@ package gf
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -57,7 +58,7 @@ func newDB(loglevel string) (*gorm.DB, error) {
 	}
 	stringMap := v.GetStringMap("mysql")
 
-	r := mysql.CreateMysql(stringMap["hosts"].(string), stringMap["username"].(string), stringMap["password"].(string),
+	r := mysql.CreateMysql(stringMap["hosts"].(string), stringMap["username"].(string), strconv.Itoa(stringMap["password"].(int)),
 		stringMap["dbname"].(string), loglevel).GetConn()
 	if r == nil {
 		return nil, errors.New("数据库初始化失败")
