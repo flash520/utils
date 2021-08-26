@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 func TestLeakyBucket(t *testing.T) {
@@ -27,14 +29,16 @@ func TestLeakyBucket(t *testing.T) {
 		}
 		fmt.Println(time.Now().Unix(), "阻断")
 	}
+}
 
-	// time.Sleep(time.Second * 3)
-	// for i := 0; i < 50; i++ {
-	// 	time.Sleep(time.Millisecond * 1000)
-	// 	if limiter.Grant() {
-	// 		fmt.Println("放行")
-	// 		continue
-	// 	}
-	// 	fmt.Println(time.Now().Unix(), "阻断")
-	// }
+func TestRate(t *testing.T) {
+	limiter := rate.NewLimiter(1, 100)
+	for i := 0; i < 101; i++ {
+		time.Sleep(time.Millisecond * 100)
+		if limiter.Allow() {
+			fmt.Println("success")
+		} else {
+			fmt.Println("failed")
+		}
+	}
 }

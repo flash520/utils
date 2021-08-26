@@ -21,7 +21,7 @@ func prefixAllocMemory(buf chan []byte) {
 		panic(err)
 	}
 	defer f.Close()
-	// info, _ := f.Stat()
+	// info, _ := frame.Stat()
 	var result = make([]int, 0, 1000)
 	for {
 		n, err = f.Read(<-buf)

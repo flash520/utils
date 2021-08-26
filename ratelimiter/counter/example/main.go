@@ -25,7 +25,7 @@ func main() {
 }
 
 func rateLimiter() gin.HandlerFunc {
-	rl := uberleakybucket.NewRateLimiter(500)
+	rl := uberleakybucket.NewRateLimiter(1)
 	// rl := counter.NewRateLimiter(8, time.Second)
 	// rl := slidingWindow.NewRateLimiter(time.Second, 1, func() slidingWindow.Window {
 	// 	return slidingWindow.NewLocalWindow()

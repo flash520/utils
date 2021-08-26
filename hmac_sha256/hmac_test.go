@@ -9,6 +9,7 @@
 package hmac_sha256
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 )
@@ -18,6 +19,21 @@ const (
 )
 
 func TestComputeHmacSha256(t *testing.T) {
-	sha256 := ComputeHmacSha256("hello world", secret)
+	var a = struct {
+		Id   string `json:"id"`
+		Name string `json:"name"`
+	}{
+		Id:   "abc",
+		Name: "fly",
+	}
+
+	marshal, _ := json.Marshal(a)
+	fmt.Println(string(marshal))
+	sha256 := ComputeHmacSha256(string(marshal), secret)
 	fmt.Println(sha256)
+
+	b := `{"id":"abc","name":"fly"}`
+
+	hmacSha256 := ComputeHmacSha256(b, secret)
+	fmt.Println(hmacSha256)
 }

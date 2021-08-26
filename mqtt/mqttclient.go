@@ -32,7 +32,7 @@ func CreateMqttClient(addr, clientID, username string) *MqttClient {
 			SetClientID(clientID).SetUsername(username)
 
 		opts.SetKeepAlive(600 * time.Second)
-		//opts.SetDefaultPublishHandler(f)
+		//opts.SetDefaultPublishHandler(frame)
 		opts.SetPingTimeout(1 * time.Second)
 		opts.SetAutoReconnect(true)
 		opts.SetConnectRetry(true)

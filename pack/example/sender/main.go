@@ -50,7 +50,7 @@ func sendfile(err error, conn net.Conn) {
 			log.Info("conn close success")
 		}
 	}()
-	//f, err := os.Open("/Users/koulei/唐伯虎点秋香.mp4")
+	//frame, err := os.Open("/Users/koulei/唐伯虎点秋香.mp4")
 	f, err := os.Open("/Users/koulei/msg.json")
 	if err != nil {
 		log.Error("read file failed, err: ", err.Error())
