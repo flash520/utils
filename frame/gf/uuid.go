@@ -15,7 +15,7 @@ import (
 )
 
 // Simple call
-func New() string {
+func NewUUID() string {
 	uuid, _ := GenerateUUID()
 	return uuid
 }
