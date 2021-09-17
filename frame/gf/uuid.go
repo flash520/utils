@@ -14,14 +14,19 @@ import (
 	"fmt"
 )
 
+var Uuid = uuid{}
+
+type uuid struct {
+}
+
 // Simple call
-func NewUUID() string {
-	uuid, _ := GenerateUUID()
+func (u *uuid) New() string {
+	uuid, _ := u.GenerateUUID()
 	return uuid
 }
 
 // GenerateRandomBytes is used to generate random bytes of given size.
-func GenerateRandomBytes(size int) ([]byte, error) {
+func (u *uuid) GenerateRandomBytes(size int) ([]byte, error) {
 	buf := make([]byte, size)
 	if _, err := rand.Read(buf); err != nil {
 		return nil, fmt.Errorf("failed to read random bytes: %v", err)
@@ -32,15 +37,15 @@ func GenerateRandomBytes(size int) ([]byte, error) {
 const uuidLen = 16
 
 // GenerateUUID is used to generate a random UUID
-func GenerateUUID() (string, error) {
-	buf, err := GenerateRandomBytes(uuidLen)
+func (u *uuid) GenerateUUID() (string, error) {
+	buf, err := u.GenerateRandomBytes(uuidLen)
 	if err != nil {
 		return "", err
 	}
-	return FormatUUID(buf)
+	return u.FormatUUID(buf)
 }
 
-func FormatUUID(buf []byte) (string, error) {
+func (u *uuid) FormatUUID(buf []byte) (string, error) {
 	if buflen := len(buf); buflen != uuidLen {
 		return "", fmt.Errorf("wrong length byte slice (%d)", buflen)
 	}
@@ -53,7 +58,7 @@ func FormatUUID(buf []byte) (string, error) {
 		buf[10:16]), nil
 }
 
-func ParseUUID(uuid string) ([]byte, error) {
+func (u *uuid) ParseUUID(uuid string) ([]byte, error) {
 	if len(uuid) != 2*uuidLen+4 {
 		return nil, fmt.Errorf("uuid string is wrong length")
 	}
