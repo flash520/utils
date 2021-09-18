@@ -10,7 +10,10 @@ package gf
 
 import (
 	"errors"
+	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -49,12 +52,21 @@ func DB(loglevel string) *gorm.DB {
 }
 
 func newDB(loglevel string) (*gorm.DB, error) {
+	var config string
+	err := filepath.Walk("./", func(path string, info fs.FileInfo, err error) error {
+		if strings.Contains(path, "config.yml") {
+			config = path
+		}
+		return nil
+	})
+	if err != nil {
+		os.Exit(1)
+	}
 	v := viper.New()
 	workPath, _ := os.Getwd()
-	v.AddConfigPath(workPath)
-	v.SetConfigFile("config.yml")
-	v.SetConfigType("yml")
-	err := v.ReadInConfig()
+	fmt.Println(workPath)
+	v.SetConfigFile(config)
+	err = v.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
