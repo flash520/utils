@@ -10,6 +10,8 @@ package gf
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -28,28 +30,44 @@ var (
 	mutex sync.Mutex
 )
 
-func DB(loglevel string) *gorm.DB {
+func DB(loglevel string, config ...string) *gorm.DB {
 	mutex.Lock()
 	defer func() { mutex.Unlock() }()
 	c := container.CreateContainersFactory()
 	r := c.Get(mysqlClient)
 	if r == nil {
 		log.Debug("新建数据库对象")
-		if rds, err := newDB(strings.ToUpper(loglevel)); err != nil {
-			return nil
+		if len(config) > 0 {
+			if rds, err := newDB(strings.ToUpper(loglevel), config[0]); err != nil {
+				return nil
+			} else {
+				c.Set(mysqlClient, rds)
+				return rds
+			}
 		} else {
-			c.Set(mysqlClient, rds)
-			return rds
+			if rds, err := newDB(strings.ToUpper(loglevel)); err != nil {
+				return nil
+			} else {
+				c.Set(mysqlClient, rds)
+				return rds
+			}
 		}
+
 	}
 	log.Debug("缓存获取数据库对象")
 	rds := r.(*gorm.DB)
 	return rds
 }
 
-func newDB(loglevel string) (*gorm.DB, error) {
+func newDB(loglevel string, config ...string) (*gorm.DB, error) {
 	v := viper.New()
-	v.SetConfigFile("config/config.yml")
+	if len(config) > 0 {
+		v.SetConfigFile(config[0])
+	} else {
+		v.SetConfigFile("./config/config.yml")
+		getwd, _ := os.Getwd()
+		fmt.Println("current path: ", getwd)
+	}
 	v.SetConfigType("yml")
 	err := v.ReadInConfig()
 	if err != nil {
