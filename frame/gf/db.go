@@ -10,7 +10,6 @@ package gf
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -63,8 +62,6 @@ func newDB(loglevel string) (*gorm.DB, error) {
 		os.Exit(1)
 	}
 	v := viper.New()
-	workPath, _ := os.Getwd()
-	fmt.Println(workPath)
 	v.SetConfigFile(config)
 	err = v.ReadInConfig()
 	if err != nil {
