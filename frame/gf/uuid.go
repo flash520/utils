@@ -19,7 +19,7 @@ var Uuid = uuid{}
 type uuid struct {
 }
 
-// Simple call
+// New Simple call
 func (u *uuid) New() string {
 	uuid, _ := u.GenerateUUID()
 	return uuid
@@ -46,8 +46,8 @@ func (u *uuid) GenerateUUID() (string, error) {
 }
 
 func (u *uuid) FormatUUID(buf []byte) (string, error) {
-	if buflen := len(buf); buflen != uuidLen {
-		return "", fmt.Errorf("wrong length byte slice (%d)", buflen)
+	if buffLength := len(buf); buffLength != uuidLen {
+		return "", fmt.Errorf("wrong length byte slice (%d)", buffLength)
 	}
 
 	return fmt.Sprintf("%x-%x-%x-%x-%x",

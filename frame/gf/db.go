@@ -16,11 +16,12 @@ import (
 	"strings"
 	"sync"
 
-	"gitee.com/flash520/utils/container"
-	"gitee.com/flash520/utils/mysql"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
+
+	"gitee.com/flash520/utils/container"
+	"gitee.com/flash520/utils/mysql"
 )
 
 const (
