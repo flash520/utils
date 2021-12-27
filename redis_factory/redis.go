@@ -41,7 +41,8 @@ func CreateRedis(nodes []string) *RedisClient {
 
 				MaxRedirects: 8,
 
-				PoolSize:           10,
+				PoolSize:           16,
+				MinIdleConns:       10,
 				PoolTimeout:        30 * time.Second,
 				IdleTimeout:        time.Minute,
 				IdleCheckFrequency: 100 * time.Millisecond,
@@ -49,8 +50,10 @@ func CreateRedis(nodes []string) *RedisClient {
 		} else {
 			mode = 1
 			singleClient = redis.NewClient(&redis.Options{
-				Addr:        nodes[0],
-				DialTimeout: 5 * time.Millisecond,
+				Addr:         nodes[0],
+				PoolSize:     16,
+				MinIdleConns: 10,
+				DialTimeout:  5 * time.Millisecond,
 			})
 		}
 
