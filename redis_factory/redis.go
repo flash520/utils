@@ -51,14 +51,14 @@ func CreateRedis(nodes []string) *RedisClient {
 				MaxRetryBackoff: 512 * time.Millisecond, // 每次计算重试间隔时间的上限，默认512毫秒，-1表示取消间隔
 				// 连接池
 				PoolSize:     20, // 连接池最大socket连接数，默认为5倍CPU数， 5 * runtime.NumCPU
-				MinIdleConns: 10, // 在启动阶段创建指定数量的Idle连接，并长期维持idle状态的连接数不少于指定数量
+				MinIdleConns: 20, // 在启动阶段创建指定数量的Idle连接，并长期维持idle状态的连接数不少于指定数量
 			})
 		} else {
 			mode = 1
 			singleClient = redis.NewClient(&redis.Options{
 				Addr:         nodes[0],
-				PoolSize:     16,
-				MinIdleConns: 10,
+				PoolSize:     20,
+				MinIdleConns: 20,
 				DialTimeout:  5 * time.Millisecond,
 			})
 		}

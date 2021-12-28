@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-basic/uuid v1.0.0
-	github.com/go-redis/redis/v8 v8.8.2
+	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/klauspost/compress v1.13.1 // indirect
